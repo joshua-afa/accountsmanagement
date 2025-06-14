@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinanceFlow - View Transactions</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-brand">
+          <h2>💰 FinanceFlow</h2>
+        </div>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a href="add.html" class="nav-link">Add Transaction</a>
+          </li>
+          <li class="nav-item">
+            <a href="categories.html" class="nav-link">Categories</a>
+          </li>
+          <li class="nav-item active">
+            <a href="view.html" class="nav-link">View Transactions</a>
+          </li>
+        </ul>
+        <div class="hamburger">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <div class="container">
+        <div class="page-header">
+          <h1>View Transactions</h1>
+          <p class="page-subtitle">Filter and view your transaction history</p>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters-section">
+          <h2>Filters</h2>
+          <form id="filtersForm" class="filters-form">
+            <div class="filter-row">
+              <div class="form-group">
+                <label for="filterDateFrom">From Date</label>
+                <input type="date" id="filterDateFrom" name="date_from">
+              </div>
+              <div class="form-group">
+                <label for="filterDateTo">To Date</label>
+                <input type="date" id="filterDateTo" name="date_to">
+              </div>
+              <div class="form-group">
+                <label for="filterAccount">Account</label>
+                <select id="filterAccount" name="account_id">
+                  <option value="">All Accounts</option>
+                  <!-- Accounts will be populated here -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="filterType">Type</label>
+                <select id="filterType" name="type">
+                  <option value="">All Types</option>
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="filterCategory">Category</label>
+                <select id="filterCategory" name="category_id">
+                  <option value="">All Categories</option>
+                  <!-- Categories will be populated here -->
+                </select>
+              </div>
+            </div>
+            <div class="filter-actions">
+              <button type="button" class="btn btn-secondary" id="clearFilters">Clear Filters</button>
+              <button type="submit" class="btn btn-primary">Apply Filters</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="summary-section">
+          <div class="summary-cards">
+            <div class="summary-card">
+              <h3>Total Income</h3>
+              <div class="summary-amount income" id="totalIncomeFiltered">₹0.00</div>
+            </div>
+            <div class="summary-card">
+              <h3>Total Expenses</h3>
+              <div class="summary-amount expense" id="totalExpensesFiltered">₹0.00</div>
+            </div>
+            <div class="summary-card">
+              <h3>Net Amount</h3>
+              <div class="summary-amount" id="netAmountFiltered">₹0.00</div>
+            </div>
+            <div class="summary-card">
+              <h3>Total Transactions</h3>
+              <div class="summary-amount" id="totalTransactionsFiltered">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="transactions-section">
+          <div class="section-header">
+            <h2>Transactions</h2>
+            <div class="table-controls">
+              <button class="btn btn-secondary" id="exportBtn">Export CSV</button>
+            </div>
+          </div>
+          <div class="transactions-table">
+            <table id="transactionsTable">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Category</th>
+                  <th>Subcategory</th>
+                  <th>Account</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="transactionsBody">
+                <!-- Transactions will be populated here -->
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination" id="pagination">
+            <!-- Pagination will be populated here -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Edit Transaction Modal -->
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Edit Transaction</h3>
+          <span class="close">&times;</span>
+        </div>
+        <form id="editTransactionForm">
+          <div class="form-group">
+            <label for="editTransactionType">Transaction Type</label>
+            <select id="editTransactionType" name="type" required>
+              <option value="">Select Type</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="editAccountId">Account</label>
+            <select id="editAccountId" name="account_id" required>
+              <option value="">Select Account</option>
+              <!-- Accounts will be populated here -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="editAmount">Amount (₹)</label>
+            <input type="number" id="editAmount" name="amount" step="0.01" min="0" required>
+          </div>
+
+          <div class="form-group">
+            <label for="editCategoryId">Category</label>
+            <select id="editCategoryId" name="category_id" required>
+              <option value="">Select Category</option>
+              <!-- Categories will be populated here -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="editSubcategoryId">Subcategory</label>
+            <select id="editSubcategoryId" name="subcategory_id">
+              <option value="">Select Subcategory (Optional)</option>
+              <!-- Subcategories will be populated here -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="editDescription">Description</label>
+            <input type="text" id="editDescription" name="description" placeholder="Brief description">
+          </div>
+
+          <div class="form-group">
+            <label for="editTransactionDate">Date</label>
+            <input type="date" id="editTransactionDate" name="date" required>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Update Transaction</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Confirm Delete</h3>
+          <span class="close">&times;</span>
+        </div>
+        <p>Are you sure you want to delete this transaction? This action cannot be undone.</p>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="loadingSpinner" class="loading-spinner">
+      <div class="spinner"></div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script type="module" src="./scripts/supabase.js"></script>
+    <script type="module" src="./scripts/view.js"></script>
+    <script type="module" src="./scripts/navigation.js"></script>
+  </body>
+</html>

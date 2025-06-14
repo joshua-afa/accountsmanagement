@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinanceFlow - Categories</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-brand">
+          <h2>💰 FinanceFlow</h2>
+        </div>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a href="add.html" class="nav-link">Add Transaction</a>
+          </li>
+          <li class="nav-item active">
+            <a href="categories.html" class="nav-link">Categories</a>
+          </li>
+          <li class="nav-item">
+            <a href="view.html" class="nav-link">View Transactions</a>
+          </li>
+        </ul>
+        <div class="hamburger">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <div class="container">
+        <div class="page-header">
+          <h1>Manage Categories</h1>
+          <p class="page-subtitle">Organize your income and expense categories</p>
+        </div>
+
+        <div class="categories-management">
+          <!-- Add New Category -->
+          <div class="add-category-section">
+            <h2>Add New Category</h2>
+            <form id="categoryForm" class="category-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="categoryName">Category Name</label>
+                  <input type="text" id="categoryName" name="name" required>
+                </div>
+                <div class="form-group">
+                  <label for="categoryType">Type</label>
+                  <select id="categoryType" name="type" required>
+                    <option value="">Select Type</option>
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary">Add Category</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Add New Account -->
+          <div class="add-account-section">
+            <h2>Add New Account</h2>
+            <form id="accountForm" class="account-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="accountName">Account Name</label>
+                  <input type="text" id="accountName" name="name" required>
+                </div>
+                <div class="form-group">
+                  <label for="accountType">Account Type</label>
+                  <select id="accountType" name="type" required>
+                    <option value="">Select Type</option>
+                    <option value="Savings">Savings</option>
+                    <option value="Current">Current</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Investment">Investment</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="bankName">Bank Name</label>
+                  <input type="text" id="bankName" name="bank_name">
+                </div>
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary">Add Account</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Categories List -->
+          <div class="categories-list">
+            <h2>Existing Categories</h2>
+            <div class="categories-tabs">
+              <button class="tab-btn active" data-type="all">All Categories</button>
+              <button class="tab-btn" data-type="income">Income</button>
+              <button class="tab-btn" data-type="expense">Expense</button>
+            </div>
+            <div class="categories-grid" id="categoriesGrid">
+              <!-- Categories will be populated here -->
+            </div>
+          </div>
+
+          <!-- Accounts List -->
+          <div class="accounts-list">
+            <h2>Existing Accounts</h2>
+            <div class="accounts-grid" id="accountsList">
+              <!-- Accounts will be populated here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Add Subcategory Modal -->
+    <div id="subcategoryModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Add Subcategory</h3>
+          <span class="close">&times;</span>
+        </div>
+        <form id="subcategoryForm">
+          <div class="form-group">
+            <label for="subcategoryName">Subcategory Name</label>
+            <input type="text" id="subcategoryName" name="name" required>
+          </div>
+          <input type="hidden" id="parentCategoryId" name="category_id">
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Add Subcategory</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="loadingSpinner" class="loading-spinner">
+      <div class="spinner"></div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script type="module" src="./scripts/supabase.js"></script>
+    <script type="module" src="./scripts/categories.js"></script>
+    <script type="module" src="./scripts/navigation.js"></script>
+  </body>
+</html>
