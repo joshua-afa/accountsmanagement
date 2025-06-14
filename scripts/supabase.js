@@ -1,14 +1,12 @@
 // Supabase configuration and client setup
 // Using environment variables from .env file
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+import { createClient } from '@supabase/supabase-js'
 
-// Import Supabase client
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-// Create Supabase client
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export const supabase = createClient(supabaseUrl, supabaseKey)
 
 // Get current user ID (helper function)
 export async function getUserId() {
@@ -120,48 +118,7 @@ export const db = {
   }
   return data[0];
 },
-
-  // Subcategories operations
-  async getCategories(type = null) {
-  const user_id = await getUserId(); // ✅ Add this line
-
-  let query = supabase
-    .from('categories')
-    .select('*')
-    .eq('user_id', user_id) // ✅ Ensure categories belong to logged-in user
-    .order('name');
-
-  if (type) {
-    query = query.eq('type', type);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error('Error fetching categories:', error);
-    throw error;
-  }
-  return data;
-},
-
-  async addSubcategory(subcategory) {
-  const user_id = await getUserId(); // ✅ Add this line
-
-  const { data, error } = await supabase
-    .from('subcategories')
-    .insert([{
-      category_id: subcategory.category_id,
-      name: subcategory.name,
-      user_id: user_id // ✅ Associate subcategory with the logged-in user
-    }])
-    .select();
-
-  if (error) {
-    console.error('Error adding subcategory:', error);
-    throw error;
-  }
-  return data[0];
-},
+  
 
   async getSubcategories(categoryId = null) {
   const user_id = await getUserId(); // ✅ Add this line
@@ -372,7 +329,7 @@ async getTotalBalance() {
   }
 
   return data.reduce((total, account) => total + parseFloat(account.balance || 0), 0);
-};
+},
 
 // Utility functions
 export const utils = {
