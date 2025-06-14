@@ -112,6 +112,7 @@ class CategoriesManager {
         return;
       }
 
+      category.user_id = await db.getUserId(); // ✅ Add user_id
       await db.addCategory(category);
       
       utils.showNotification('Category added successfully!', 'success');
@@ -151,7 +152,7 @@ class CategoriesManager {
         utils.showNotification('An account with this name already exists.', 'error');
         return;
       }
-
+      account.user_id = await db.getUserId(); // ✅ Add user_id
       await db.addAccount(account);
       
       utils.showNotification('Account added successfully!', 'success');
@@ -191,7 +192,7 @@ class CategoriesManager {
         utils.showNotification('A subcategory with this name already exists for this category.', 'error');
         return;
       }
-
+      subcategory.user_id = await db.getUserId(); // ✅ Add user_id
       await db.addSubcategory(subcategory);
       
       utils.showNotification('Subcategory added successfully!', 'success');

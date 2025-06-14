@@ -18,6 +18,7 @@ class Dashboard {
   }
 
   async loadDashboardData() {
+    const user_id = await db.getUserId();
     const currentMonth = utils.getCurrentMonth();
     
     // Load all data in parallel
@@ -28,11 +29,11 @@ class Dashboard {
       categoryBreakdown,
       totalBalance
     ] = await Promise.all([
-      db.getAccounts(),
-      db.getMonthlyTotals(currentMonth.year, currentMonth.month),
-      db.getTransactions({ limit: 5 }),
-      db.getCategoryBreakdown(currentMonth.year, currentMonth.month),
-      db.getTotalBalance()
+      db.getAccounts(user_id),
+      db.getMonthlyTotals(currentMonth.year, currentMonth.month,user_id),
+      db.getTransactions({ limit: 5,user_id }),
+      db.getCategoryBreakdown(currentMonth.year, currentMonth.month,user_id),
+      db.getTotalBalance(user_id)
     ]);
 
     this.renderTotalBalance(totalBalance);

@@ -10,56 +10,77 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 // Create Supabase client
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// Get current user ID (helper function)
+export async function getUserId() {
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) {
+    console.error('Unable to get current user:', error);
+    throw new Error('User not logged in');
+  }
+  return user.id;
+}
+
+
 // Utility functions for database operations
 export const db = {
   // Accounts operations
   async getAccounts() {
-    const { data, error } = await supabase
-      .from('accounts')
-      .select('*')
-      .eq('is_active', true)
-      .order('name');
-    
-    if (error) {
-      console.error('Error fetching accounts:', error);
-      throw error;
-    }
-    return data;
-  },
+  const user_id = await getUserId();
+  const { data, error } = await supabase
+    .from('accounts')
+    .select('*')
+    .eq('user_id', user_id)
+    .eq('is_active', true)
+    .order('name');
+
+  if (error) {
+    console.error('Error fetching accounts:', error);
+    throw error;
+  }
+  return data;
+},
+
 
   async addAccount(account) {
-    const { data, error } = await supabase
-      .from('accounts')
-      .insert([{
-        name: account.name,
-        type: account.type,
-        bank_name: account.bank_name || null,
-        account_number: account.account_number || null,
-        balance: account.balance || 0,
-        is_active: true
-      }])
-      .select();
-    
-    if (error) {
-      console.error('Error adding account:', error);
-      throw error;
-    }
-    return data[0];
-  },
+  const user_id = await getUserId(); // ✅ Add this line
+
+  const { data, error } = await supabase
+    .from('accounts')
+    .insert([{
+      user_id, // ✅ Attach user to new account
+      name: account.name,
+      type: account.type,
+      bank_name: account.bank_name || null,
+      account_number: account.account_number || null,
+      balance: account.balance || 0,
+      is_active: true
+    }])
+    .select();
+
+  if (error) {
+    console.error('Error adding account:', error);
+    throw error;
+  }
+  return data[0];
+},
+
 
   async updateAccountBalance(accountId, newBalance) {
-    const { data, error } = await supabase
-      .from('accounts')
-      .update({ balance: newBalance })
-      .eq('id', accountId)
-      .select();
-    
-    if (error) {
-      console.error('Error updating account balance:', error);
-      throw error;
-    }
-    return data[0];
-  },
+  const user_id = await getUserId(); // ✅ Add this line
+
+  const { data, error } = await supabase
+    .from('accounts')
+    .update({ balance: newBalance })
+    .eq('id', accountId)
+    .eq('user_id', user_id) // ✅ Ensure the account belongs to the logged-in user
+    .select();
+
+  if (error) {
+    console.error('Error updating account balance:', error);
+    throw error;
+  }
+  return data[0];
+},
 
   // Categories operations
   async getCategories(type = null) {
@@ -82,225 +103,275 @@ export const db = {
   },
 
   async addCategory(category) {
-    const { data, error } = await supabase
-      .from('categories')
-      .insert([{
-        name: category.name,
-        type: category.type
-      }])
-      .select();
-    
-    if (error) {
-      console.error('Error adding category:', error);
-      throw error;
-    }
-    return data[0];
-  },
+  const user_id = await getUserId(); // ✅ Add this line
+
+  const { data, error } = await supabase
+    .from('categories')
+    .insert([{
+      name: category.name,
+      type: category.type,
+      user_id: user_id // ✅ Store which user owns this category
+    }])
+    .select();
+
+  if (error) {
+    console.error('Error adding category:', error);
+    throw error;
+  }
+  return data[0];
+},
 
   // Subcategories operations
-  async getSubcategories(categoryId = null) {
-    let query = supabase
-      .from('subcategories')
-      .select('*')
-      .order('name');
-    
-    if (categoryId) {
-      query = query.eq('category_id', categoryId);
-    }
-    
-    const { data, error } = await query;
-    
-    if (error) {
-      console.error('Error fetching subcategories:', error);
-      throw error;
-    }
-    return data;
-  },
+  async getCategories(type = null) {
+  const user_id = await getUserId(); // ✅ Add this line
+
+  let query = supabase
+    .from('categories')
+    .select('*')
+    .eq('user_id', user_id) // ✅ Ensure categories belong to logged-in user
+    .order('name');
+
+  if (type) {
+    query = query.eq('type', type);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Error fetching categories:', error);
+    throw error;
+  }
+  return data;
+},
 
   async addSubcategory(subcategory) {
-    const { data, error } = await supabase
-      .from('subcategories')
-      .insert([{
-        category_id: subcategory.category_id,
-        name: subcategory.name
-      }])
-      .select();
-    
-    if (error) {
-      console.error('Error adding subcategory:', error);
-      throw error;
-    }
-    return data[0];
-  },
+  const user_id = await getUserId(); // ✅ Add this line
+
+  const { data, error } = await supabase
+    .from('subcategories')
+    .insert([{
+      category_id: subcategory.category_id,
+      name: subcategory.name,
+      user_id: user_id // ✅ Associate subcategory with the logged-in user
+    }])
+    .select();
+
+  if (error) {
+    console.error('Error adding subcategory:', error);
+    throw error;
+  }
+  return data[0];
+},
+
+  async getSubcategories(categoryId = null) {
+  const user_id = await getUserId(); // ✅ Add this line
+
+  let query = supabase
+    .from('subcategories')
+    .select('*')
+    .eq('user_id', user_id) // ✅ Ensure only that user's subcategories are shown
+    .order('name');
+
+  if (categoryId) {
+    query = query.eq('category_id', categoryId);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Error fetching subcategories:', error);
+    throw error;
+  }
+  return data;
+},
+
 
   // Transactions operations
   async getTransactions(filters = {}) {
-    let query = supabase
-      .from('transactions')
-      .select(`
-        *,
-        accounts (name, type),
-        categories (name, type),
-        subcategories (name)
-      `)
-      .order('date', { ascending: false });
+  const user_id = await getUserId(); // ✅ Add this line
 
-    // Apply filters
-    if (filters.account_id) {
-      query = query.eq('account_id', filters.account_id);
-    }
-    if (filters.type) {
-      query = query.eq('type', filters.type);
-    }
-    if (filters.category_id) {
-      query = query.eq('category_id', filters.category_id);
-    }
-    if (filters.date_from) {
-      query = query.gte('date', filters.date_from);
-    }
-    if (filters.date_to) {
-      query = query.lte('date', filters.date_to);
-    }
-    if (filters.limit) {
-      query = query.limit(filters.limit);
-    }
+  let query = supabase
+    .from('transactions')
+    .select(`
+      *,
+      accounts (name, type),
+      categories (name, type),
+      subcategories (name)
+    `)
+    .eq('user_id', user_id) // ✅ Filter by user_id
+    .order('date', { ascending: false });
 
-    const { data, error } = await query;
-    
-    if (error) {
-      console.error('Error fetching transactions:', error);
-      throw error;
-    }
-    return data;
-  },
+  // Apply filters
+  if (filters.account_id) {
+    query = query.eq('account_id', filters.account_id);
+  }
+  if (filters.type) {
+    query = query.eq('type', filters.type);
+  }
+  if (filters.category_id) {
+    query = query.eq('category_id', filters.category_id);
+  }
+  if (filters.date_from) {
+    query = query.gte('date', filters.date_from);
+  }
+  if (filters.date_to) {
+    query = query.lte('date', filters.date_to);
+  }
+  if (filters.limit) {
+    query = query.limit(filters.limit);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Error fetching transactions:', error);
+    throw error;
+  }
+  return data;
+},
 
   async addTransaction(transaction) {
-    const { data, error } = await supabase
-      .from('transactions')
-      .insert([{
-        account_id: transaction.account_id,
-        type: transaction.type,
-        category_id: transaction.category_id,
-        subcategory_id: transaction.subcategory_id || null,
-        amount: transaction.amount,
-        description: transaction.description || null,
-        date: transaction.date
-      }])
-      .select();
-    
-    if (error) {
-      console.error('Error adding transaction:', error);
-      throw error;
-    }
-    return data[0];
+  const user_id = await getUserId(); // ✅ Add this line
+
+  const { data, error } = await supabase
+    .from('transactions')
+    .insert([{
+      user_id: user_id, // ✅ Associate transaction with user
+      account_id: transaction.account_id,
+      type: transaction.type,
+      category_id: transaction.category_id,
+      subcategory_id: transaction.subcategory_id || null,
+      amount: transaction.amount,
+      description: transaction.description || null,
+      date: transaction.date
+    }])
+    .select();
+
+  if (error) {
+    console.error('Error adding transaction:', error);
+    throw error;
+  }
+  return data[0];
   },
 
   async updateTransaction(transactionId, transaction) {
-    const { data, error } = await supabase
-      .from('transactions')
-      .update({
-        account_id: transaction.account_id,
-        type: transaction.type,
-        category_id: transaction.category_id,
-        subcategory_id: transaction.subcategory_id || null,
-        amount: transaction.amount,
-        description: transaction.description || null,
-        date: transaction.date
-      })
-      .eq('id', transactionId)
-      .select();
-    
-    if (error) {
-      console.error('Error updating transaction:', error);
-      throw error;
-    }
-    return data[0];
-  },
+  const user_id = await getUserId(); // ✅ Get current user
+
+  const { data, error } = await supabase
+    .from('transactions')
+    .update({
+      account_id: transaction.account_id,
+      type: transaction.type,
+      category_id: transaction.category_id,
+      subcategory_id: transaction.subcategory_id || null,
+      amount: transaction.amount,
+      description: transaction.description || null,
+      date: transaction.date
+    })
+    .eq('id', transactionId)
+    .eq('user_id', user_id) // ✅ Ensure only user's transaction is updated
+    .select();
+
+  if (error) {
+    console.error('Error updating transaction:', error);
+    throw error;
+  }
+  return data[0];
+},
 
   async deleteTransaction(transactionId) {
-    const { error } = await supabase
-      .from('transactions')
-      .delete()
-      .eq('id', transactionId);
-    
-    if (error) {
-      console.error('Error deleting transaction:', error);
-      throw error;
-    }
-    return true;
-  },
+  const user_id = await getUserId(); // ✅ Ensure correct user
+
+  const { error } = await supabase
+    .from('transactions')
+    .delete()
+    .eq('id', transactionId)
+    .eq('user_id', user_id); // ✅ Restrict deletion to user’s own data
+
+  if (error) {
+    console.error('Error deleting transaction:', error);
+    throw error;
+  }
+  return true;
+},
 
   // Analytics and summaries
   async getMonthlyTotals(year, month) {
-    const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
-    const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+  const user_id = await getUserId(); // ✅ Add user filter
+  const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
+  const endDate = new Date(year, month, 0).toISOString().split('T')[0];
 
-    const { data, error } = await supabase
-      .from('transactions')
-      .select('type, amount')
-      .gte('date', startDate)
-      .lte('date', endDate);
-    
-    if (error) {
-      console.error('Error fetching monthly totals:', error);
-      throw error;
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('type, amount')
+    .eq('user_id', user_id) // ✅ Only fetch user’s data
+    .gte('date', startDate)
+    .lte('date', endDate);
+
+  if (error) {
+    console.error('Error fetching monthly totals:', error);
+    throw error;
+  }
+
+  const totals = data.reduce((acc, transaction) => {
+    if (transaction.type === 'income') {
+      acc.income += parseFloat(transaction.amount);
+    } else {
+      acc.expense += parseFloat(transaction.amount);
     }
+    return acc;
+  }, { income: 0, expense: 0 });
 
-    const totals = data.reduce((acc, transaction) => {
-      if (transaction.type === 'income') {
-        acc.income += parseFloat(transaction.amount);
-      } else {
-        acc.expense += parseFloat(transaction.amount);
-      }
-      return acc;
-    }, { income: 0, expense: 0 });
-
-    return totals;
-  },
+  return totals;
+},
 
   async getCategoryBreakdown(year, month, type = 'expense') {
-    const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
-    const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+  const user_id = await getUserId(); // ✅ Restrict by user
+  const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
+  const endDate = new Date(year, month, 0).toISOString().split('T')[0];
 
-    const { data, error } = await supabase
-      .from('transactions')
-      .select(`
-        amount,
-        categories (name)
-      `)
-      .eq('type', type)
-      .gte('date', startDate)
-      .lte('date', endDate);
-    
-    if (error) {
-      console.error('Error fetching category breakdown:', error);
-      throw error;
-    }
+  const { data, error } = await supabase
+    .from('transactions')
+    .select(`
+      amount,
+      categories (name)
+    `)
+    .eq('type', type)
+    .eq('user_id', user_id) // ✅ Filter by user
+    .gte('date', startDate)
+    .lte('date', endDate);
 
-    const breakdown = data.reduce((acc, transaction) => {
-      const categoryName = transaction.categories?.name || 'Uncategorized';
-      acc[categoryName] = (acc[categoryName] || 0) + parseFloat(transaction.amount);
-      return acc;
-    }, {});
-
-    return Object.entries(breakdown)
-      .map(([name, amount]) => ({ name, amount }))
-      .sort((a, b) => b.amount - a.amount);
-  },
-
-  async getTotalBalance() {
-    const { data, error } = await supabase
-      .from('accounts')
-      .select('balance')
-      .eq('is_active', true);
-    
-    if (error) {
-      console.error('Error fetching total balance:', error);
-      throw error;
-    }
-
-    return data.reduce((total, account) => total + parseFloat(account.balance || 0), 0);
+  if (error) {
+    console.error('Error fetching category breakdown:', error);
+    throw error;
   }
+
+  const breakdown = data.reduce((acc, transaction) => {
+    const categoryName = transaction.categories?.name || 'Uncategorized';
+    acc[categoryName] = (acc[categoryName] || 0) + parseFloat(transaction.amount);
+    return acc;
+  }, {});
+
+  return Object.entries(breakdown)
+    .map(([name, amount]) => ({ name, amount }))
+    .sort((a, b) => b.amount - a.amount);
+},
+
+async getTotalBalance() {
+  const user_id = await getUserId(); // ✅ Add user filter
+
+  const { data, error } = await supabase
+    .from('accounts')
+    .select('balance')
+    .eq('is_active', true)
+    .eq('user_id', user_id); // ✅ Restrict to current user’s accounts
+
+  if (error) {
+    console.error('Error fetching total balance:', error);
+    throw error;
+  }
+
+  return data.reduce((total, account) => total + parseFloat(account.balance || 0), 0);
 };
 
 // Utility functions

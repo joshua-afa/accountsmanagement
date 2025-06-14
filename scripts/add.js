@@ -180,6 +180,8 @@ class AddTransaction {
         return;
       }
 
+      transaction.user_id = await db.getUserId(); // ✅ Attach user_id to transaction
+
       await db.addTransaction(transaction);
       
       utils.showNotification('Transaction added successfully!', 'success');
