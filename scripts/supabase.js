@@ -315,21 +315,22 @@ export const db = {
 },
 
 async getTotalBalance() {
-  const user_id = await getUserId(); // ✅ Add user filter
+    const user_id = await getUserId();
 
-  const { data, error } = await supabase
-    .from('accounts')
-    .select('balance')
-    .eq('is_active', true)
-    .eq('user_id', user_id); // ✅ Restrict to current user’s accounts
+    const { data, error } = await supabase
+      .from('accounts')
+      .select('balance')
+      .eq('is_active', true)
+      .eq('user_id', user_id);
 
-  if (error) {
-    console.error('Error fetching total balance:', error);
-    throw error;
+    if (error) {
+      console.error('Error fetching total balance:', error);
+      throw error;
+    }
+
+    return data.reduce((total, account) => total + parseFloat(account.balance || 0), 0);
   }
-
-  return data.reduce((total, account) => total + parseFloat(account.balance || 0), 0);
-},
+};
 
 // Utility functions
 export const utils = {
@@ -421,6 +422,3 @@ export const utils = {
     return csvRows.join('\n');
   }
 };
-
-// Export the Supabase client for direct access if needed
-export { supabase };

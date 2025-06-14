@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinanceFlow - Dashboard</title>
+    <script type="module" crossorigin src="/assets/index-fQi6qphf.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Mqo22WBp.css">
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-brand">
+          <h2>💰 FinanceFlow</h2>
+        </div>
+        <ul class="nav-menu">
+          <li class="nav-item active">
+            <a href="index.html" class="nav-link">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a href="add.html" class="nav-link">Add Transaction</a>
+          </li>
+          <li class="nav-item">
+            <a href="categories.html" class="nav-link">Categories</a>
+          </li>
+          <li class="nav-item">
+            <a href="view.html" class="nav-link">View Transactions</a>
+          </li>
+        </ul>
+        <div class="hamburger">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <div class="container">
+        <div class="page-header">
+          <h1>Dashboard</h1>
+          <p class="page-subtitle">Your financial overview at a glance</p>
+        </div>
+
+        <!-- Total Balance Section -->
+        <div class="balance-section">
+          <div class="balance-card total-balance">
+            <h3>Total Balance</h3>
+            <div class="balance-amount" id="totalBalance">₹0.00</div>
+          </div>
+          <div class="balance-stats">
+            <div class="stat-card income">
+              <div class="stat-icon">📈</div>
+              <div class="stat-info">
+                <h4>This Month Income</h4>
+                <div class="stat-amount" id="monthlyIncome">₹0.00</div>
+              </div>
+            </div>
+            <div class="stat-card expense">
+              <div class="stat-icon">📉</div>
+              <div class="stat-info">
+                <h4>This Month Expenses</h4>
+                <div class="stat-amount" id="monthlyExpenses">₹0.00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accounts Section -->
+        <div class="accounts-section">
+          <h2>Accounts</h2>
+          <div class="accounts-grid" id="accountsGrid">
+            <!-- Account cards will be populated here -->
+          </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="transactions-section">
+          <div class="section-header">
+            <h2>Recent Transactions</h2>
+            <a href="view.html" class="view-all-btn">View All</a>
+          </div>
+          <div class="transactions-table">
+            <table id="recentTransactionsTable">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Category</th>
+                  <th>Account</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody id="recentTransactionsBody">
+                <!-- Recent transactions will be populated here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Category Breakdown -->
+        <div class="category-breakdown">
+          <h2>Expense Categories (This Month)</h2>
+          <div class="category-list" id="categoryBreakdown">
+            <!-- Category breakdown will be populated here -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="loadingSpinner" class="loading-spinner">
+      <div class="spinner"></div>
+    </div>
+
+  </body>
+</html>
